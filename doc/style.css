@@ -1,0 +1,65 @@
+/* CSS Document */
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.9em;
+	margin: 0;
+	margin-bottom: 2em;
+	padding:0;
+	color: #000;
+	line-height: 1.6;
+	}
+
+.content{
+	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+	
+}
+
+a:link, a:visited, a:active, a:hover {
+	text-decoration: none;
+	color: #6699ff;
+	font-weight:bold;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #6699ff;
+}
+
+.maintable {
+	width:80ex;
+	line-height: 1.6;
+	text-align:justify;
+}
+
+.menu {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.9em;
+	margin-left: 10px;
+	padding:0;
+	color: #000;
+	line-height: 1.6;
+}
+.section_head {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 1.0em;
+	font-weight: bold;
+}
+.submenu {
+	margin:0;
+	list-style-position: inside;
+	list-style-type: square;
+}
+.code {
+	font-family: "Courier New", Courier, mono;
+}
+.code_emp {
+	font-family: "Courier New", Courier, mono;
+	font-weight: bold;
+}
+.caption {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 0.8em;
+	font-weight: bold;
+}

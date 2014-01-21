@@ -1,0 +1,20 @@
+import net.jini.core.lookup.ServiceItem;
+
+list(String sname) {
+	ServiceItem[] svcs = context.getAvailableServices();
+	if (svcs.length == 0) {
+		print("No services.");
+	} else {
+		print("Service list:");
+		for (i = 0; i < svcs.length; i++) {
+			name = getName(svcs[i]);
+			if (name.toLowerCase().indexOf(sname.toLowerCase()) != -1) {
+				print(svcs[i].serviceID + "        " + getName(svcs[i]));
+			}
+		}
+	}
+}
+
+list() {
+	list("");
+}

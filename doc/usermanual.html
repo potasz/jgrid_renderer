@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Sunflow renderfarm using JGrid</title>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+<style type="text/css">
+<!--
+.style1 {
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.style2 {
+	color: #FF9900;
+	font-weight: bold;
+}
+.style3 {
+	color: #6699FF;
+	font-weight: bold;
+}
+.style4 {font-size: 1.0em; font-family: Arial, Helvetica, sans-serif;}
+-->
+</style>
+</head>
+
+<body>
+<table width="900" border="0" cellpadding="0" cellspacing="0">
+  <tr align="left" valign="top" bgcolor="#FFFFFF">
+    <td height="100" valign="top" colspan="2">
+      <img src="images/top.png" width="900" height="100">
+    </td>
+  </tr>
+  <tr>
+    <td width="20%" valign="top" bgcolor="#FFFFFF"><table width="100%"  border="0" class="menu">
+      <tr>
+        <td><span class="style1"><a href="index.html">Home</a></span></td>
+      </tr>
+      <tr>
+        <td><span class="style3">Documents</span></td>
+      </tr>
+	  <tr>
+	  <td class="submenu">
+	    &nbsp;&nbsp;- <a href="design.html">Introduction</a><br>
+	    &nbsp;&nbsp;- <a href="install.html">Install &amp; Run </a> <br>
+	    &nbsp;&nbsp;- <span class="style2">User Manual</span></td>
+      </tr>
+      <tr>
+        <td><span class="style2"><a href="download.html">Download</a></span></td>
+      </tr>
+      <tr>
+        <td><strong>Results</strong></td>
+      </tr>
+    </table></td>
+    <td valign="top">
+	<table border="0" cellpadding="0" cellspacing="0" class="maintable">
+	  <tr>
+	  <td class="style4"><p>After you installed and configured your distributed rendering environment you can start rendering your Sunflow scenes via the distributed rendering client (DRC). This client displays the rendered images with Sunflow's built in image display so it could be familiar from Sunflow's GUI application.</p>
+	    <p>This page uses the terminology and concepts introduced in the <a href="design.html">introduction</a>, if you did not read it yet than I suggest to start with it first.</p></td>
+	  </tr>
+      <tr>
+        <td><p><strong>The status bar </strong></p>
+          </td>
+      </tr>
+      <tr>
+        <td>If you would like to render any scene the most important is to have at least one Compute Service available. You can check the number of discovered services via the status bar at the bottom of the GUI, or to be more precise it displays the number of worker tasks spawned to the discovered services, which is equal to the total processor number available:
+          <p align="center"><img src="images/statusbar_workers.png" width="700" height="30"><br>
+            <span class="caption">Figure 1: the initial state of the status bar showing the number of available workers.</span></p>
+          <p>The status bar is an important part of the GUI during rendering too, since you can follow here the rendering progress:</p>
+          <p align="center"><a name="figure2"></a><img src="images/statusbar.png" width="700" height="30"><br>
+            <span class="caption">Figure 2: the status bar during a rendering session.</span> </p>
+		  <p>From left to right the status bar contains the rendering status messages, the rendering progress bar and the display of available workers.</p></td>
+        </tr>
+      <tr>
+        <td><strong>Rendering a simple scene </strong></td>
+      </tr>
+      <tr>
+        <td><p>Under simple I mean that the Sunflow .sc file contains no dependent files, like other .sc files, images, textures and so on. To open the desired scene file select <em>File-&gt;Open</em> from the menu or press <em>Ctrl+O</em>. A file chooser dialog opens and the current directory is set to the root directory of the HTTP server that you configured in the setenv file (see the <a href="install.html#rootdir">install</a> document for more details). You can select files only in this directory or subdirectories, otherwise you will get an error message. </p>
+          <p>After you selected the file a small message dialog is displayed that asks whether the scene file can be cached or not. If you select YES then the Compute Services will use already downloaded local copies if available, otherwise download the file. If you select NO, the scene file will be downloaded before each rendering session. If you wish to render the same scene many times to experiment with different rendering settings then you should force download each time.</p>
+          <p>If the file opened successfully you will get a message, just click OK and you can start rendering. Note that that the client application itself will not parse the file and will not build the scene objects. It only looks for the image dimensions (the <span class="code">image {...}</span> block in the .sc file) if it is found that the open is successful.</p>
+          <p>To render the scene with Sunflow's Simple renderer select <em>Rendering-&gt;Simple</em> from the menu or press <em>Ctrl+Z</em>. As its name says, this render is faster but produces only a preview quality image, if you are not sure about your settings select this one first.</p>
+          <p>To render a scene with Sunflow's bucket renderer, which produces the full quality image, select <em>Rendering-&gt;Bucket</em> from the menu or press <em>Ctrl+X</em>. This type of rendering could take considerably more time to finish.</p>
+          <p>During the rendering session you can follow the progress in the status bar as it is seen in <a href="#figure2">figure 2</a>, and also on the display as the rendered buckets are displayed on by one. The colored frame of yet unrendered buckets means that it was already dispatched to a remote service but the result did not arrive yet. When the rendering is finished a small message dialog displays the total rendering time, but you can also see it in the status bar. </p>
+          <p>You can cancel the current rendering session by selecting <em>Rendering-&gt;Stop</em> from the menu or pressing <em>Ctrl+C</em>. </p>
+          <p>During the rendering It is important to take into considerations that each rendering session involves a great number of network communication. If you render a large file, or it takes a long time for Sunflow API to build the scene objects then you can perceive a large delay between the start of the rendering and the return of the first rendered bucket. In the <em>Window-&gt;Log Panel</em> menu (or <em>Ctrl+L</em>) you can pop up the log panel, where you can get more detailed messages about the current progress of the rendering or possible failures. </p>
+          <p>For a better performance if you have large scene files then separate them into a smaller one containing only the always changing settings, such as image parameters, shaders, lighting, camera etc. and into a bigger one containing the geometry that changes very rarely. This way the larger file can be marked as cacheable so after the first rendering only the small file will be downloaded. </p></td>
+      </tr>
+      <tr>
+        <td><strong>Rendering scenes with external files</strong></td>
+      </tr>
+      <tr>
+        <td><p>If you have external files that the main scene file refers to, such as textures, bump maps, images, geometry data, object files etc., then in the current version you have to add them manually before the rendering session. Open the  main scene file that should always contain the <span class="code">image {...}</span> block and that is the one that is parsed first at the remote site selecting File-&gt;Open from the menu. To add external files that are required during the rendering select <em>File-&gt;Add required files</em> in the menu or press <em>Ctrl+R</em>. A dialog opens  where you can manage the external files (<a href="#figure3">figure 3</a>). Here you can add and remove files and you can also mark files as cacheable or not. Cacheable files will be downloaded only once.</p>
+          <p align="center"><a name="figure3"></a><img src="images/req_files.png" width="600" height="413"> <br>
+            <span class="caption">Figure 3: the dialog to add external files to the scene.</span> </p>
+          <p align="justify">After selecting the required files you can start rendering as it was described in the previous section.</p>
+          </td>
+      </tr>
+	<tr>
+		<td><strong>Rendering animations </strong></td>
+	</tr>
+	<tr>
+		<td><p>Animation is a series of scene files rendered one by one. First open the scene file of the firs frame in the File-&gt;Open menu then add the rest of the scene files selecting <em>File-&gt;Add animation files</em> from the menu or pressing <em>Ctrl+A</em>. A dialog opens that is very similar to the one where you added external files. Select the scene files of the frames, Toggle caching whether you want the files to download once or not. If the scene files require some external files then select File-&gt;Add required files. </p>
+		  <p>Before starting the rendering switch to animation mode by selecting <em>Rendering-&gt;Animation</em>, otherwise only the first frame (the main scene file) is rendered. Then you can start rendering in the same way as it was described in the previous sections. The rendered frames will be automatically saved in the <span class="code_emp">client/frames</span> directory as <span class="code_emp">frameNNN.png</span> where NNN is the frame number. (In future versions this will be configurable). </p></td>
+	</tr>
+	<tr>
+	  <td><strong>
+	Before closing the client application </strong></td>
+	</tr>
+	<tr>
+	  <td>
+	    <p>When you decide to close the client application, before it you can save the rendered image under the <em>File-&gt;Save image</em> menu or pressing <em>Ctrl+S</em>. </p>
+	    <p>When closing the application either via <em>File-&gt;Exit</em> menu, <em>Ctrl+E</em> shortcut or on the window, the client will cancel all tasks spawned to the Compute Service. </p></td>
+	</tr>
+	<tr>
+	<td><strong>
+	Limitations and known issues</strong></td>
+	</tr>
+ 	<tr><td><ul>
+ 	  <li> If you forget to add external files to a scene that requires it that the rendering can hang, because the Sunflow API in remote services blocks from some reason if the required file is not found. When this happenes cancel the rendering and add the required files. </li>
+ 	  <li>Currently Java scene files cannot be rendered because Janinio requires so many permissions that are not allowed for tasks running in the Compute Services. Or you can try to configure the Compute Services to run with a policy file containg all permissions, but I did not tested it yet.</li>
+ 	  <li>This software kit uses a slightly modified version of Sunflow so do not overwrite the sunflow and janino JAR files with newer ones. </li>
+ 	</ul></td>
+ 	</tr>
+    </table></td>
+  </tr>
+</table>
+</body>
+</html>

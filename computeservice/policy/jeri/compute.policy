@@ -1,0 +1,19 @@
+grant codeBase "file:..${/}common${/}-" {
+	permission java.security.AllPermission;
+};
+
+grant codeBase "file:lib${/}-" {
+	permission java.security.AllPermission;
+};
+
+grant {
+	permission java.net.SocketPermission "*:1024-", "connect,resolve";
+	permission java.net.SocketPermission "*:80", "connect,resolve";
+
+	permission hu.vein.irt.jgrid.compute.common.ComputePermission "*";
+
+	permission java.util.logging.LoggingPermission "control";
+	permission java.io.FilePermission "trace${/}*", "read,write";
+	permission java.io.FilePermission "temp${/}-", "read,write,delete";	
+	permission java.util.PropertyPermission "*", "read,write";
+};

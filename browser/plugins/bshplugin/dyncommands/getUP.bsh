@@ -1,0 +1,17 @@
+import javax.security.auth.Subject;
+import java.security.AccessController;
+import java.security.cert.CertPath;
+import jgrid.core.security.UIDPrincipal;
+
+UIDPrincipal getUP() {
+	Subject s = Subject.getSubject(AccessController.getContext());
+	if (s == null) {
+		return null;
+	}
+	Iterator iter = s.getPublicCredentials(CertPath.class).iterator();
+	if (iter.hasNext()) {
+		CertPath element = iter.next();
+		return new UIDPrincipal(element);
+	}	
+	return null;
+}

@@ -1,0 +1,184 @@
+<project name="GridSunflow" default="jar" basedir=".">
+	<property file="build.properties" />
+
+	<taskdef name="classdepandjar" classname="org.jini.project.example.jade.tools.ClassDepAndJarTask" classpath="${jgrid.home}/classdepandjar.jar:${jini.home}/tools.jar" />
+
+	<taskdef name="jarwrappertask" classname="hu.vein.irt.jgrid.util.JarWrapperTask" classpath="${jgrid.home}/jgrid-util.jar:${jini.home}/tools.jar" />
+
+	<target name="noaction" />
+
+	<target name="init">
+		<tstamp />
+
+		<mkdir dir="lib" />
+		<mkdir dir="log" />
+		<mkdir dir="classes" />
+
+		<path id="build.path.jgrid">
+			<pathelement location="${jgrid.home}/jgrid-core.jar"/>
+			<pathelement location="${jgrid.home}/jgrid-util.jar"/>
+		</path>
+
+		<path id="build.path.serviceui">
+			<pathelement location="${jgrid.core}/serviceui-1.1a.jar"/>
+		</path>
+		
+		<path id="build.path.jini">
+			<pathelement location="${jini.home}/jsk-platform.jar"/>
+			<pathelement location="${jini.home}/jsk-lib.jar"/>
+		</path>	
+
+		<path id="build.path.project">
+			<pathelement location="../computeservice/lib/compute.jar"/>
+			<pathelement location="../common/concurrent.jar"/>
+			<pathelement location="../common/ibis.jar"/>
+			<pathelement location="../common/log4j-1.2.9.jar"/>
+			<pathelement location="${sunflow.home}/sunflow.jar"/>
+			<pathelement location="${sunflow.home}/janino.jar"/>			
+			<pathelement location="lib/nimrodlf-0.99b.jar"/>
+			<pathelement location="classes"/>
+		</path>		
+
+		<path id="build.path">
+			<path refid="build.path.jini"/>
+			<path refid="build.path.jgrid"/>
+			<path refid="build.path.serviceui"/>
+			<path refid="build.path.project"/>
+		</path>
+		
+		<property name="compute-jar" value="${computeservice.home}/lib/compute.jar" />
+	</target>
+
+	<target name="compile" depends="init">
+		<javac source="1.5" target="1.5" destdir="classes" classpathref="build.path" optimize="on" debug="on">
+			<src path="src" />
+			<include name="**/*.java" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="dl-jar">
+		<delete>
+			<fileset dir="lib" includes="client.jar" />
+		</delete>
+		<jar jarfile="lib/client.jar">
+			<fileset dir="classes">
+				<include name="**/*.class" />
+			</fileset>
+			<fileset dir="src">
+				<include name="**/*.png" />
+			</fileset>			
+		</jar>
+	</target>
+
+	<target name="dl-jar" depends="compile">
+		<delete>
+			<fileset dir="../lib-dl" includes="client-dl.jar" />
+		</delete>
+
+		<classdepandjar jarfile="../lib-dl/client-dl.jar" classpathref="build.path">			
+			<in name="jgrid.sunflow" />
+			<in name="jnt" />
+			<topclass name="jgrid.sunflow.renderer.task.RendererTask" />
+			<topclass name="jnt.scimark2.SciMark2Task" />			
+		</classdepandjar>
+
+		<jarwrappertask jarfile="../lib-dl/client-wrapped-dl.jar" httpmd="md5">
+			<fileset dir="../lib-dl">
+				<include name="client-dl.jar" />
+				<include name="sunflow.jar" />
+				<include name="janino.jar" />
+			</fileset>
+		</jarwrappertask>
+		
+	<checksum file="../lib-dl/client-wrapped-dl.jar" property="md5" />
+
+	<available file="../bin/client.sh" property="client.sh.present" />
+	<antcall target="replace-md5-in-sh"/>
+	<available file="../bin/client.bat" property="client.bat.present" />
+	<antcall target="replace-md5-in-bat"/>
+	
+	<echo  message="MD5 hash for client codebase: ${md5}" />		
+	</target>
+
+	<target name="replace-md5-in-sh" if="client.sh.present">
+		<replaceregexp file="../bin/client.sh" match="md5=(\w*)" replace="md5=${md5}" byline="true" />
+		<replaceregexp file="../bin/consolecl.sh" match="md5=(\w*)" replace="md5=${md5}" byline="true" />	
+	</target>
+
+	<target name="replace-md5-in-bat" if="client.bat.present">
+		<replaceregexp file="../bin/client.bat" match="md5=(\w*)" replace="md5=${md5}" byline="true" />	
+		<replaceregexp file="../bin/consolecl.bat" match="md5=(\w*)" replace="md5=${md5}" byline="true" />	
+	</target>
+
+	<target name="change_version">
+		<replaceregexp match="\s*\* @version 0\.1\.1" replace=" * @version 0\.1\.2" byline="true" >
+			<fileset dir="src">
+				<include name="**/*.java" />
+			</fileset>
+		</replaceregexp>	
+	</target>
+	
+	<target name="runconsole" depends="init">
+		<pathconvert property="run.classpath" refid="build.path"/>
+		<checksum file="../lib-dl/client-wrapped-dl.jar" property="md5" />
+		<property name="codebase" value="httpmd://${exporter-host}:${codebase-port}/client-wrapped-dl.jar;md5=${md5}"/>
+		
+		<java fork="true" classname="jgrid.sunflow.client.ConsoleRenderer" classpathref="build.path" >
+				
+			<jvmarg value="-Xmx128M"/>
+
+			<sysproperty key="jgrid.localhost" value="${jgrid-localhost}"/>
+			<sysproperty key="export.client.port" value="${exporter-port}"/>
+			<sysproperty key="export.client.event.port" value="${event-exporter-port}"/>
+			<sysproperty key="file.basedir" value="${file-basedir}"/>
+			<sysproperty key="client.lookup.group" value="${lookup-group}"/>			
+			<sysproperty key="java.rmi.server.codebase" value="${codebase}"/>
+			<sysproperty key="java.security.policy" value="config/policy.all"/>
+			<sysproperty key="java.security.properties" value="config/dynamic-policy.security-properties"/>
+			<sysproperty key="java.util.logging.config.file" value="config/logging.properties"/>
+			<sysproperty key="javax.net.ssl.trustStore" value="config/truststore.jks"/>
+			<sysproperty key="javax.net.ssl.trustStorePassword" value="truststorepw"/>
+			<sysproperty key="java.protocol.handler.pkgs" value="net.jini.url"/>
+			<sysproperty key="xibis.name_server.host" value="localhost"/>
+			<sysproperty key="xibis.name_server.key" value="bla"/>
+			<sysproperty key="ibis.verbose" value="false"/>
+			<sysproperty key="ibis.debug" value="false"/>
+
+			<arg line="config/client.config"/>
+			
+			<arg line="files/bump_demo.sc f files/textures/brick_normal.jpg t files/textures/brick_color.jpg t files/textures/dirty_bump.jpg t files/textures/reptileskin_bump.png t files/textures/shiphull_bump.png t files/textures/slime_bump.jpg t"/>
+		</java>
+	</target>
+
+	<target name="rungui" depends="init">
+		<pathconvert property="run.classpath" refid="build.path"/>
+		<checksum file="../lib-dl/client-wrapped-dl.jar" property="md5" />
+		<property name="codebase" value="httpmd://${exporter-host}:${codebase-port}/client-wrapped-dl.jar;md5=${md5}"/>
+
+		<java fork="true" classname="jgrid.sunflow.client.RendererGUI" classpathref="build.path" >
+
+			<jvmarg value="-Xmx128M"/>
+
+			<sysproperty key="jgrid.localhost" value="${jgrid-localhost}"/>
+			<sysproperty key="export.client.port" value="${exporter-port}"/>
+			<sysproperty key="export.client.event.port" value="${event-exporter-port}"/>
+			<sysproperty key="file.basedir" value="${file-basedir}"/>
+			<sysproperty key="client.lookup.group" value="${lookup-group}"/>			
+			<sysproperty key="java.rmi.server.codebase" value="${codebase}"/>
+			<sysproperty key="java.security.policy" value="config/policy.all"/>
+			<sysproperty key="java.security.properties" value="config/dynamic-policy.security-properties"/>
+			<sysproperty key="java.util.logging.config.file" value="config/logging.properties"/>
+			<sysproperty key="javax.net.ssl.trustStore" value="config/truststore.jks"/>
+			<sysproperty key="javax.net.ssl.trustStorePassword" value="truststorepw"/>
+			<sysproperty key="java.protocol.handler.pkgs" value="net.jini.url"/>
+			<sysproperty key="xibis.name_server.host" value="localhost"/>
+			<sysproperty key="xibis.name_server.key" value="bla"/>
+			<sysproperty key="ibis.verbose" value="false"/>
+			<sysproperty key="ibis.debug" value="false"/>
+			<sysproperty key="nimrodlf.themeFile" value="config/nimrod.theme"/>
+			
+			<arg line="config/client.config"/>
+		</java>
+	</target>
+	
+</project>

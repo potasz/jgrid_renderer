@@ -1,0 +1,13 @@
+grant codebase "file:..${/}common${/}-" {
+    permission java.security.AllPermission;
+};
+
+grant codebase "file:lib${/}reggie.jar" {
+    permission java.security.AllPermission;
+};
+
+
+/* Grant permissions to client principal */
+grant {
+    permission com.sun.jini.reggie.RegistrarPermission "*";
+}; 

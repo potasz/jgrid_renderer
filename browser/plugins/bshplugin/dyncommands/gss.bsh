@@ -1,0 +1,5 @@
+import net.jini.core.lookup.ServiceItem;
+
+ServiceItem gss() {
+	return context.getSelectedService();
+}

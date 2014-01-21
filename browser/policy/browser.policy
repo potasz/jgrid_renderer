@@ -1,0 +1,19 @@
+/* AUTOMATICALLY GENERATED ON Mon Feb 09 16:48:47 CET 2004*/
+/* DO NOT EDIT */
+
+grant codeBase "file:lib${/}*" {
+  permission java.security.AllPermission;
+};
+
+grant codeBase "file:..${/}common${/}*" {
+  permission java.security.AllPermission;
+};
+
+grant codeBase "file:plugins${/}*" {
+  permission java.security.AllPermission;
+};
+
+grant {
+  permission java.util.PropertyPermission "jiniProxyHost", "read";
+  permission java.util.PropertyPermission "jiniProxyPort", "read";
+};

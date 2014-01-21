@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Sunflow renderfarm using JGrid</title>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+<style type="text/css">
+<!--
+.style1 {
+	color: #FFFFFF;
+	font-weight: bold;
+}
+.style2 {
+	color: #000000;
+	font-weight: bold;
+}
+.style4 {font-family: "Courier New", Courier, mono}
+.style9 {
+	color: #FF9900;
+	font-weight: bold;
+}
+.style10 {
+	color: #6699FF;
+	font-weight: bold;
+}
+-->
+</style>
+</head>
+
+<body>
+<table width="900" border="0" cellpadding="0" cellspacing="0">
+  <tr align="left" valign="top" bgcolor="#FFFFFF">
+    <td height="100" valign="top" colspan="2">
+      <img src="images/top.png" width="900" height="100">
+    </td>
+  </tr>
+  <tr>
+    <td width="20%" valign="top" bgcolor="#FFFFFF"><table width="100%"  border="0" class="menu">
+      <tr>
+        <td><span class="style1"><a href="index.html">Home</a></span></td>
+      </tr>
+      <tr>
+        <td><span class="style10">Documents</span></td>
+      </tr>
+	  <tr>
+	  <td class="submenu">
+	    &nbsp;&nbsp;- <a href="design.html">Introduction</a> <br>
+	    &nbsp;&nbsp;- <span class="style9">Install &amp; Run</span><br>
+	    &nbsp;&nbsp;- <a href="usermanual.html">User Manual</a></td>
+      </tr>
+      <tr>
+        <td><span class="style2"><a href="download.html">Download</a></span></td>
+      </tr>
+      <tr>
+        <td><strong>Results</strong></td>
+      </tr>
+    </table></td>
+    <td valign="top">
+	<table border="0" cellpadding="0" cellspacing="0" class="maintable">
+	  <tr>
+	  <td class="section_head">Prerequisites</td>
+	  </tr>
+      <tr>
+        <td><p>
+          Before installing this software kit you have to have Java SE 5 or later installed on any computer you wish to use. You must have a JDK installed, because the service JVMs run in server mode that are only available in the JDK bundle. You can get the latest release of Java SE from the official <a href="http://java.sun.com/javase/downloads/index.jsp">Java web site.</a> </p>
+          <p>This page uses the terminology and concepts introduced in the <a href="design.html">introduction</a>, if you did not read it yet than I suggest to start with it first.</p></td>
+      </tr>
+      <tr>
+        <td height="40px" nowrap bgcolor="#FFFFFF"><strong>Install</strong></td>
+        </tr>
+      <tr>
+        <td><p>To install the distributed rendering software kit:</p>
+          <ul>
+            <li>First <a href="download.html">download</a> the latest release and unzip it to an arbitrary directory (<span class="style4">RENDER_HOME</span>).</li>
+            <li>Next copy the <span class="code_emp">RENDER_HOME/lib-ext/jsk-policy.jar</span> file to the JAVA_HOME/jre/lib/ext directory. </li>
+            <li>Then go to the <span class="style4">RENDER_HOME/bin</span> directory and open the <span class="code_emp">setenv.bat</span> or <span class="code_emp">setenv.sh</span> file (depending on your OS) to edit. The <span class="style4">setenv</span> file contains many environment variables that all scripts and configuration files refer to, so it is important to set them properly. The next section describes it in more detail. </li>
+          </ul></td>
+      </tr>
+      <tr>
+        <td><p><strong>Configuring the environment</strong></p>
+          </td>
+      </tr>
+      <tr>
+        <td>The <span class="code">RENDER_HOME/bin/setenv.[bat|sh]</span> file contains all the environment variables which the user can configure the system behavior with. Note that here only those environment variables are mentioned that have to be set by all mean to start any of the components.
+For a detailed description of configurable variables refer to the comments in the <span class="code">setenv</span> file.
+          <ul><li>The <span class="code_emp">JAVA_HOME</span> environment variable is used to set the Java location. This must point to your JDK installation.</li>
+            <li>The next variable you have to specify is <span class="code_emp">JGRID_LOCALHOST</span> which is the IP address of the current machine. All entities (compute services, client, class server etc.) running on the current machine use this IP address to start server sockets. This IP address should be reachable for anybody in the execution environment. Use inner IP address only in case when all entities use inner addresses. To avoid problems do not use <span class="code">localhost</span> or <span class="code">127.0.0.1</span> even if you start everything on one single machine.</li>
+            <li><a name="rootdir"></a>Files describing the 3D model (.sc files) and all depended files (like textures, bump maps, images for image base lighting etc.) are downloaded by the Compute Services via HTTP from the client. By default this HTTP server is set to be the one that is included in this bundle and used for serving classes for mobile code. However, for large files, this simple HTTP server is not adequate thus it is suggested to use a scalable HTTP server like Apache or Tomcat instead. You can configure an external HTTP server via the <span class="code_emp">FILE_DOWNLOAD_ROOT_URL</span> and <span class="code_emp">FILE_DOWNLOAD_ROOT_DIR</span> environment variables. The first must specify the root URL of your HTTP server, while the second must point to the root directory of the HTTP server in the file system. This latter is required because the grid renderer client GUI must have a file view to your files so that you can choose them in a file chooser dialog. On the other hand Compute Services require a remotely accessible URL to download the files that the user selected.<br> 
+              <br>
+              For example if you have an HTTP server accessible via the URL <span class="code">http://foo.bar.com</span> that serves files from the c:/documents/web directory than you have to set the variables as follows:<br>
+              <span class="code"><br>
+              set FILE_DOWNLOAD_ROOT_URL=http://foo.bar.com/<br>
+              set FILE_DOWNLOAD_ROOT_DIR=c:/documents/web</span><br>
+			  <br>
+			  Note that the value of the <span class="code">FILE_DOWNLOAD_ROOT_URL</span> variable must end with a &quot;/&quot; slash. The path of the used files will be always treated relative to these settings.</li>
+            </ul>
+          <p>Now you are ready to start the required components like compute services or the rendering client. </p></td>
+      </tr>
+      <tr>
+        <td><strong>Running the components </strong></td>
+      </tr>
+      <tr>
+        <td><p>In the downloadable bundle the <span class="code">bin</span> subdirectory contains all the scripts that are to start the different components. In the following listing each script is described in detail, they appear in the order as you should run them (the extensions are .bat or .sh depending on your OS):</p>
+          <ol>
+            <li><strong>classserver</strong>: this script starts a simple HTTP server (found in the Jini bundle) on the localhost. This simple HTTP server serves the JAR files required for the mobile code. You should always start this first, as it is required by all other components running on the same host. You can configure the port on which this server starts in the <span class="code">setenv</span> file by the <span class="code">CLASSSERVER_PORT</span> environment variable. </li>
+            <li><strong>lookup</strong>: this starts a Lookup Service on the current host. This is the registry for the Compute Services and the renderer client so it should be started before them. Of course it is not a problem if you start it later, but until a Lookup Service is not running no discovery can be made, and the renderer client will not find any Compute Services.</li>
+            <li><strong>cs</strong>: this script starts a Compute Service on the current host. If there is Lookup Service running in the multicast range then the Compute Service will discover it and registers itself so that clients can immediately discover and use it. You should see the &quot;Service is ready.&quot; text in the command line if the Compute Service started successfully. </li>
+            <li><strong>browser</strong>: starts the JGrid service browser. This browser can discover the Jini services in the multicast range, or the ones found in the specified Lookup Services. The browser helps you to visualize the available services and view their attributes. If you started some services but you cannot see them in the browser than there is some problem in the discovery process (see the <a href="#problems">problem solving</a> section for more details). If you see your services in the browser than the renderer client can also discover them, so you can proceed.</li>
+            <li><strong>client</strong>: starts the grid renderer client GUI. If you have already set up your environment then the client will automatically discover the available Compute Service in the multicast range and you can start rendering your scenes. See the <a href="usermanual.html">user manual</a> for more details about how to use the client.</li>
+            </ol>
+          <p>For more details about the set up of your rendering environment please read the <a href="design.html">introduction</a> document.</p></td>
+      </tr>
+      <tr>
+        <td><a name="problems"></a><strong>Problem solving</strong></td>
+      </tr>
+      <tr>
+        <td><ol>
+          <li><strong>Problem in discovering the services</strong><br>
+            The 
+            most usual problem when working with Jini is that the automatic discovery of service is not working. You start the browser and cannot see any services. Here are some possible reasons why the discovery do not function:
+            <ul>
+		  <li>Check if you started the class server. If you did, and you have services running then in the command window (or prompt) you should see HTTP requests like : &quot;<span class="code">compute-wrapper-dl.jar requested from IP_ADDRESS</span>&quot;. If you cannot see any requests then check if the <span class="code">JGRID_LOCALHOST</span> variable was set to the correct IP address of the local machine, or if the port of the class server is not blocked by any firewall.</li>
+		  <li>The next reason is often that the multicast is not enabled on your network, or there are some services that are beyond the multicast range. In this case you should use unicast discovery and must specify the direct Jini URL of the Lookup Service to every entity that wish to discover other services. For example if you started a Lookup Service on a machine that has IP_ADDRESS then the Jini URL is: <span class="code">jini://IP_ADDRESS:4160</span> or just <span class="code">jini://IP_ADDRESS</span> since the port 4160 is the default one (this can be changed in the <span class="code">lookup/config/transient-reggie.config </span>Lookup Service configuration file). Instead of the IP_ADDRESS you can also specify the hostname of the machine like: <span class="code">jini://foo.bar.com:4160</span>. To test unicast discovery the easiest way is to start the JGrid service browser and in the <span class="code">Locator</span> field beneath the toolbar type the Jini URL and press the <span class="code">Go</span> button. Then switch to the <span class="code">Registrars</span> tab on the left side where your Lookup Service should appear. If it works than you should configure the Compute Services and the client to use this unicast address instead of relying on multicast discovery.<br>
+		    <br>
+		    To configure the Compute Service edit the <span class="code">computeservice/config/jeri/transient-compute.config</span> file. Look for the <span class="code">net.jini.lookup.JoinManager</span> block at the end of the file and within it the <span class="code">discoveryManager</span> entry. Uncomment the line:
+		    <p align="center" class="code">new LookupLocator(&quot;jini://your_host:4160)</p>
+		   and replace &quot;<span class="code">lookup_host</span>&quot; with the IP address or hostname of the machine which the Lookup Service runs on.<br>
+		   <br>
+		   To configure the renderer client you have to do almost the same thing but in the <span class="code">client/config/client.config</span> file. In this case you have to look for the <span class="code">net.jini.lookup.ServiceDiscoveryManager</span> block at the beginning of the file and within it the <span class="code">discoveryManager</span> entry. Uncomment the <span class="code">new LookupLocator(...</span> line again and replace the &quot;<span class="code">lookup_host</span>&quot; with the IP address or hostname of the machine which the Lookup Service runs on.<br>
+		   &nbsp;&nbsp;&nbsp;&nbsp;From now the Compute Services and the client will look	for	a Lookup Service specified by the Jini URL.</li>
+		  <li>An other reason for the discovery not working if you forgot to copy the <span class="code">RENDER_HOME/lib-ext/jsk-policy.jar</span> file to the <span class="code">JAVA_HOME/jre/lib/ext</span> directory, or you copied it to the extension directory of an other JDK than you are running the applications with.</li>
+		  </ul>
+</li>
+          </ol>          </td>
+      </tr>
+
+    </table></td>
+  </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Sunflow renderfarm using JGrid</title>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+<style type="text/css">
+<!--
+.style6 {
+	color: #FF9900;
+	font-weight: bold;
+}
+.style7 {color: #6699FF}
+-->
+</style>
+</head>
+
+<body>
+<table width="900" border="0" cellpadding="0" cellspacing="0">
+  <tr align="left" valign="top" bgcolor="#FFFFFF">
+    <td height="100" valign="top" colspan="2">
+      <img src="images/top.png" width="900" height="100">
+    </td>
+  </tr>
+  <tr>
+    <td width="20%" valign="top" bgcolor="#FFFFFF"><table width="100%"  border="0" class="menu">
+      <tr>
+        <td><span class="style1"><a href="index.html">Home</a></span></td>
+      </tr>
+      <tr>
+        <td><span class="style3 style7"><strong>Documents</strong></span></td>
+      </tr>
+	  <tr>
+	  <td class="submenu">
+	    &nbsp;&nbsp;- <span class="style4 style6">Introduction</span><br>
+	    &nbsp;&nbsp;- <a href="install.html">Install &amp; Run</a> <br>
+	    &nbsp;&nbsp;- <a href="usermanual.html">User Manual</a></td>
+      </tr>
+      <tr>
+        <td><span class="style2"><a href="download.html">Download</a></span></td>
+      </tr>
+      <tr>
+        <td><strong>Results</strong></td>
+      </tr>
+    </table></td>
+    <td valign="top">
+	<table border="0" cellpadding="0" cellspacing="0" class="maintable">
+	  <tr>
+	  <td class="style5">Although this distributed rendering software kit was bundled to make the installation and usage as easy as possible, I think, without at least a minimal understanding what happens behind the scenes one cannot leverage the full potential of the system. This page shortly introduces the Jini technology, then describes the architecture of the rendering environment and a typical rendering scenario, and finishes with some practical advices how to design and set up your own renderfarm.</td>
+	  </tr>
+      <tr>
+        <td><p><strong>
+          Jini</strong></p>
+          </td>
+      </tr>
+      <tr>
+        <td><p>Jini is distributed object technology developed by Sun Microsystems Inc. from 1999. Jini provides tools and mechanisms to build a robust and dynamic distributed system where every component is either a service or a consumer of a service (called client from now). Jini services are described with plain Java interfaces and all service operations can be accessed via those interfaces. Jini provides a Service Oriented Architecture (SOA) where the three main components are the Service, the Client and the Registry which is called <em>Lookup Service</em> in Jini terminology. The relationship of these entities is show in <a href="#figure1">figure 1</a>. When a Service starts up it registers its <em>proxy object</em> with the Lookup Service which is a plain Java object implementing the service interfaces and wraps a remote reference to the service backend. The proxy object hides all communication details to the service backed and makes Jini protocol independent, since any communication protocol can be implemented between the proxy and the service backend. After registering with the Lookup Services clients can lookup the suitable service based on the interface description. Moreover clients can subscribe for remote events that are triggered when the required service appears or disappears, so they can react quickly to any changes.</p>
+          <p align="center"><a name="figure1"></a><img src="images/jini_arch.png" width="345" height="203"><br>
+            <span class="caption">Figure 1: The relationship of the three main components of the Jini technology</span></p>
+          <p align="justify">
+          Of course Jini provides much more to build a robust distributed system, namely full security architecture, resource leasing, transactions and JavaSpaces that are all accessible via a mature and well designed API. Since Jini is used as the middleware in this distributed rendering software kit, the user will only perceive that after starting the client application the available services will be discovered automatically, and the addition and removal of computational services will be handled easily at runtime. </p></td>
+        </tr>
+      <tr>
+        <td><strong>Architecture of the distributed rendering system</strong></td>
+      </tr>
+      <tr>
+        <td><p>From the user's perspective using this distributed rendering facility is very easy and straightforward provided there is an already set up renderfarm. Just start the client application, wait a little until the required number of services are automatically discovered  and then simply load your scene file and press a button that immediately starts rendering using the remote services. If you have to set up your own renderfarm then you will have a bit more work, but If you understand what to start and where then setting up your rendering environment is relatively easy. This section introduces the main components of this distributed rendering environment and they relationships.</p>
+          <p align="center"><a name="figure2"></a><a href="images/render_arch.png"><img src="images/render_arch_small.png" width="361" height="251" border="0"></a><br>
+            <span class="caption">Figure 2: the architecture of the distributed rendering environment. (Click to enlarge)</span></p>
+          <p>If you look at <a href="#figure2">figure 2</a>, you can recognize the three main components introduced in the previous section. The client in this case is the <em>Distributed Rendering Client</em> which has a GUI for easier use, the service is a special Jini service that is part of the JGrid infrastructure, called <em>Compute Service</em>, and finally the Lookup Service which is the registry so that the communicating parties could find each other. There are two more components in the figure, the two <em>HTTP servers</em>, one for the dynamic code download (required for RMI), and one for downloading scene and other necessary files by Compute Services for remote computation.</p>
+          <p>The actual computations required for rendering a scene will be carried out by Compute Services. These are Java programs that exports out a JVM as a computational resource and behave as Jini services so that clients could dynamically discover them and communicate with them via the network. The Compute Service is a general purpose Java task execution service, and was designed to be a platform independent compute node in the JGrid service-oriented grid infrastructure. It can execute both sequential and parallel tasks both in synchronous and asynchronous mode, it can be remotely administered and monitored, supports secure execution and provides a high level API to program distributed applications building on it. For more details read the <a href="http://pds.irt.vein.hu/files/jgrid/manual/compute/index.html">Compute Service Manual</a> or the related <a href="http://pota.irt.vein.hu/publications.html">research papers</a>.</p>
+          </td>
+      </tr>
+      <tr>
+        <td><strong>Typical rendering scenario</strong></td>
+      </tr>
+      <tr>
+        <td><p>After introducing the main components a typical rendering scenario looks as follows:</p>
+          <ol>
+            <li>A Lookup Service and the HTTP servers are started on a machine.</li>
+            <li>A Compute Service is started on each machine that is to carry out computations. After a successful start up  services register themselves with the Lookup Service.</li>
+            <li>The distributed rendering client is started that first discovers the Lookup Service in the vicinity by multicast messages (or with unicast if multicast does not work).</li>
+            <li>The client looks up all the Compute Services available in the Lookup Service and downloads their proxy objects.</li>
+            <li>Via the proxy objects the client spawns as many renderer tasks (called <em>workers</em> from now) to each Compute Service as many processors they have (processor number is specified in the service attributes). With this the client is ready for rendering.</li>
+            <li>The user opens a scene file, and optionally adds required files, such as textures, bump maps, images etc., in the GUI. </li>
+            <li>When the user starts the rendering the client application distributes the name of the scene file, and all other required files to the workers waiting inside the Compute Services.</li>
+            <li>The workers first download all necessary files via the HTTP server or use a locale copy if available, build the scene objects and start the rendering bucket by bucket.</li>
+            <li>The renderable buckets are distributed by the client in a master-worker style. Each worker asks for a new bucket, renders it, sends back the rendered image and asks for the next bucket.</li>
+            <li>During  rendering the user can 
+
+
+continously
+
+ follow the progress via the client GUI and can cancel the rendering session whenever he wishes. </li>
+            <li>If the user did not cancel the rendering then it finishes when there are no more unrendered buckets left. The workers return into a waiting state, the user can start a new rendering session. </li>
+          </ol></td>
+      </tr>
+	  <tr>
+	  <td><strong>Configurations</strong></td>
+	  </tr>
+	  <tr>
+	  <td><p>When you would like to set up your distributed rendering environment first you have to design it depending on the resources that are on your disposal. Here design means to decide which component will run on which machine. A minimal configuration is shown in<a href="#figure3"> figure 3</a>. Here the Lookup Service, the HTTP servers and the client GUI runs on the user's machine, while the computations are made by an other machine running one Compute Service. A real application of this configuration can be when the user wants to relieve his working machine meanwhile rendering a large scene, so that he could work uncluttered. Or, for example, if there is a powerful - possibly multiprocessor - machine available that the user has access to. The reason, why the Lookup Service and the HTTP server is not running on the remote machine, is that it will consume near 100% CPU time that could hamper the operation of the other services.</p>
+	    <p align="center"><a name="figure3"></a><a href="images/min_setup.png"><img src="images/min_setup_small.png" width="326" height="129" border="0"></a><br>
+	      <span class="caption">Figure 3: A minimal configuration of the rendering environment. (Click to enlarge) </span></p>
+	    <p align="justify">On the next figure (<a href="#figure4">figure 4</a>) a typical configuration is shown. This assumes that there are more computers available for rendering. In this configuration, the user machine runs only the client application because now the Lookup Service and the HTTP server (or servers) are migrated to a separate machine. This way the Lookup Service can keep running when the user machine is off that gives more stability to the system and lowers network traffic on the client side. The rest of the machines (that can be involved in the computations) each runs a Compute Service. Besides the user's and Lookup Service's machines any computer in the vicinity can be involved in the rendering. This can range from the workstations of the workmates that stay mostly idle in the network to the more powerful servers or mainframes.</p>
+	    <p align="justify">However, there is one more important thing to mention. Since the scene files (.sc files) and they related files can possible be several 100 megabytes large it is necessary to ensure that the HTTP server has enough bandwidth and also scalable enough to serve dozens of Compute Services. If you work with large files, it is also possible to use a single shared directory on some file server, and configure the Compute Services to use that directory as the temporary download directory, and then mark all files in the GUI (or at least the large ones) as cachable, so no download will be made. In this case the client should also use that shared directory to select files from. </p>
+	    <p align="center"><a name="figure4"></a><a href="images/typ_setup.png"><img src="images/typ_setup_small.png" width="383" height="232" border="0"></a> <br>
+	      <span class="caption">Figure 4: A typical configuration of the rendering environment. (Click to enlarge) </span></p>
+	    <p align="justify">After understanding and designing your system you can start <a href="install.html">installing</a> the <a href="download.html">downloadable bundle</a> to each computers.</p></td>
+	  </tr>
+    </table></td>
+  </tr>
+</table>
+</body>
+</html>

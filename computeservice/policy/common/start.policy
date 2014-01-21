@@ -1,0 +1,8 @@
+grant codeBase "file:..${/}common${/}-" {
+	permission java.security.AllPermission;
+};
+
+
+grant codebase "file:lib${/}compute.jar" {
+	permission java.security.AllPermission;
+};
